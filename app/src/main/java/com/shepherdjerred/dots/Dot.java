@@ -3,10 +3,10 @@ package com.shepherdjerred.dots;
 import java.util.Random;
 
 public class Dot {
-    public int color;
-    public int row;
-    public int col;
-    public boolean selected;
+    private int color;
+    private int row;
+    private int col;
+    private boolean selected;
 
     private Random randomGen;
 
@@ -16,6 +16,33 @@ public class Dot {
         selected = false;
         this.row = row;
         this.col = col;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public void setSelected(boolean selected) {
+
+        this.selected = selected;
+    }
+
+    public boolean isSelected() {
+
+        return selected;
+    }
+
+    public int getColor() {
+
+        return color;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getCol() {
+        return col;
     }
 
     private void setColor() {
@@ -39,8 +66,7 @@ public class Dot {
 
         Dot dot = (Dot) o;
 
-        if (row != dot.row) return false;
-        return col == dot.col;
+        return row == dot.row && col == dot.col;
     }
 
     @Override
@@ -49,6 +75,8 @@ public class Dot {
                 "color=" + color +
                 ", row=" + row +
                 ", col=" + col +
+                ", selected=" + selected +
+                ", randomGen=" + randomGen +
                 '}';
     }
 }
