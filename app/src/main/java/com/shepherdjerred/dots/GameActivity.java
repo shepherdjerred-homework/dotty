@@ -4,6 +4,10 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 
 import java.util.HashMap;
@@ -30,6 +34,8 @@ public class GameActivity extends AppCompatActivity {
 
         addTagToImages();
         mapImagesToCoords();
+        addTouchListenerToGridLayout();
+        addTouchListenerToImages();
         startGame();
     }
 
@@ -67,6 +73,44 @@ public class GameActivity extends AppCompatActivity {
 
             Drawable drawable = getResources().getDrawable(drawableInt);
             image.setImageDrawable(drawable);
+        }
+    }
+
+    private void addTouchListenerToGridLayout() {
+        GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
+        gridLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("MOTION GRID INFO", MotionEvent.actionToString(motionEvent.getAction()));
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    Log.d("Motion", "Swipe started");
+                }
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    Log.d("Motion", "Swipe ended");
+                    gameModel.clearDotPath();
+                    gameModel.finishMove();
+                }
+                return false;
+            }
+        });
+    }
+
+    private void addTouchListenerToImages() {
+        for (final ImageView imageView : coordinateImageMap.values()) {
+            imageView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    Log.d("MOTION DOT INFO", MotionEvent.actionToString(motionEvent.getAction()));
+                    if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
+                        Log.d("Motion", "Dot selected");
+                        Coordinate coordinate = (Coordinate) imageView.getTag();
+                        Dot dot = gameModel.getDot(coordinate.getX(), coordinate.getY());
+                        dot.setSelected(true);
+                        imageView.setImageAlpha(100);
+                    }
+                    return false;
+                }
+            });
         }
     }
     
