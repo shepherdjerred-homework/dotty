@@ -35,7 +35,6 @@ public class GameActivity extends AppCompatActivity {
         addTagToImages();
         mapImagesToCoords();
         addTouchListenerToGridLayout();
-        addTouchListenerToImages();
         startGame();
     }
 
@@ -77,13 +76,21 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void addTouchListenerToGridLayout() {
-        GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
+        final GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
         gridLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Log.d("MOTION GRID INFO", MotionEvent.actionToString(motionEvent.getAction()));
+                int gridHeight = view.getHeight();
+                int gridWidth = view.getWidth();
+                int heightOfDot = gridHeight / 6;
+                int widthOfDot = gridWidth / 6;
+                float clickedX = motionEvent.getX();
+                float clickedY = motionEvent.getY();
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     Log.d("Motion", "Swipe started");
+                }
+                if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
+                    Log.d("Motion", "Swiping");
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     Log.d("Motion", "Swipe ended");
@@ -93,25 +100,6 @@ public class GameActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }
-
-    private void addTouchListenerToImages() {
-        for (final ImageView imageView : coordinateImageMap.values()) {
-            imageView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    Log.d("MOTION DOT INFO", MotionEvent.actionToString(motionEvent.getAction()));
-                    if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-                        Log.d("Motion", "Dot selected");
-                        Coordinate coordinate = (Coordinate) imageView.getTag();
-                        Dot dot = gameModel.getDot(coordinate.getX(), coordinate.getY());
-                        dot.setSelected(true);
-                        imageView.setImageAlpha(100);
-                    }
-                    return false;
-                }
-            });
-        }
     }
     
     private void addTagToImages() {
