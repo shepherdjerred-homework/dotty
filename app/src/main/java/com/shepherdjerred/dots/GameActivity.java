@@ -86,14 +86,15 @@ public class GameActivity extends AppCompatActivity {
                 int widthOfDot = gridWidth / 6;
                 float clickedX = motionEvent.getX();
                 float clickedY = motionEvent.getY();
+                Log.d("DotsTouchV", String.valueOf(motionEvent));
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    Log.d("Motion", "Swipe started");
+                    Log.d("DotsTouch", "Swipe started");
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-                    Log.d("Motion", "Swiping");
+                    Log.d("DotsTouch", "Swiping");
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    Log.d("Motion", "Swipe ended");
+                    Log.d("DotsTouch", "Swipe ended");
                     gameModel.clearDotPath();
                     gameModel.finishMove();
                 }
