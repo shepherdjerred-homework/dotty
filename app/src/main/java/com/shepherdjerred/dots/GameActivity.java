@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class GameActivity extends AppCompatActivity {
     private void startGame() {
         gameModel.newGame();
         drawBoard();
+        updateGameScore();
     }
 
     private void drawBoard() {
@@ -80,29 +82,45 @@ public class GameActivity extends AppCompatActivity {
         gridLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                int gridHeight = view.getHeight();
-                int gridWidth = view.getWidth();
-                int heightOfDot = gridHeight / 6;
-                int widthOfDot = gridWidth / 6;
-                float clickedX = motionEvent.getX();
-                float clickedY = motionEvent.getY();
-                Log.d("DotsTouchV", String.valueOf(motionEvent));
+                Coordinate dotCoord = getCoordinateFromTouch(motionEvent);
+                ImageView imageView = coordinateImageMap.get(dotCoord);
+                Dot dot = (Dot) imageView.getTag();
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    Log.d("DotsTouch", "Swipe started");
+
                 }
                 if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-                    Log.d("DotsTouch", "Swiping");
+                    gameModel.addDotToPath(dot);
                 }
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    Log.d("DotsTouch", "Swipe ended");
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
                     gameModel.clearDotPath();
                     gameModel.finishMove();
+                    updateGameScore();
+                    drawBoard();
                 }
-                return false;
+                return true;
             }
         });
     }
-    
+
+    private void updateGameScore() {
+        TextView textView = (TextView) findViewById(R.id.scoreValue);
+        textView.setText(gameModel.getScore());
+    }
+
+    private Coordinate getCoordinateFromTouch(MotionEvent motionEvent) {
+        final GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
+        int gridHeight = gridLayout.getHeight();
+        int gridWidth = gridLayout.getWidth();
+        int heightOfDot = gridHeight / 6;
+        int widthOfDot = gridWidth / 6;
+        float clickedX = motionEvent.getX();
+        float clickedY = motionEvent.getY();
+        int coordX = (int) Math.ceil(clickedX / heightOfDot) - 1;
+        int coordY = (int) Math.ceil(clickedY / widthOfDot) - 1;
+        Log.d("DotsTracking", "X: " + coordX + "Y: " + coordY);
+        return new Coordinate(coordX, coordY);
+    }
+
     private void addTagToImages() {
         // Tag row 0
         findViewById(R.id.x0y0).setTag(new Coordinate(0, 0));
