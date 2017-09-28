@@ -72,6 +72,9 @@ public class GameModel {
     }
 
     public Dot getDot(Coordinate coordinate) {
+        if (coordinate.getX() > mNumCells || coordinate.getY() > mNumCells || coordinate.getX() < 0 || coordinate.getY() < 0) {
+            return null;
+        }
         return mDots[coordinate.getY()][coordinate.getX()];
     }
 
