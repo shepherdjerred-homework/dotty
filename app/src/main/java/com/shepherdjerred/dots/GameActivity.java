@@ -1,8 +1,11 @@
 package com.shepherdjerred.dots;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -24,6 +27,10 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        setup();
+    }
+
+    private void setup() {
         setupGameModel();
         setupView();
         startGame();
@@ -53,14 +60,35 @@ public class GameActivity extends AppCompatActivity {
     private void setupTimedGame() {
         TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
         objectiveTextView.setText("Time Remaining");
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        gameModel.setTimeRemaining(Integer.valueOf(prefs.getString("timeAmount", "30")));
+        final TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
+        objectiveValueTextView.setText(String.valueOf(gameModel.getTimeRemaining() + " seconds"));
+
+        // https://developer.android.com/reference/android/os/CountDownTimer.html
+        new CountDownTimer(gameModel.getTimeRemaining(), 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                objectiveValueTextView.setText(millisUntilFinished / 1000 + " seconds");
+            }
+
+            public void onFinish() {
+                objectiveValueTextView.setText("0 seconds");
+                gameEnd();
+            }
+        }.start();
     }
 
     private void setupMovesGame() {
         TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
         objectiveTextView.setText("Moves Remaining");
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        gameModel.setMovesRemaining(Integer.valueOf(prefs.getString("movesAmount", "15")));
+        updateRemainingMovesText();
     }
 
     private void setupView() {
+        hideButtons();
         addTagToImages();
         mapImagesToCoords();
         addTouchListenerToGridLayout();
@@ -120,18 +148,20 @@ public class GameActivity extends AppCompatActivity {
         gridLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
-                        motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
-                    finishMove();
-                }
-                Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
-                Dot touchedDot = gameModel.getDot(touchedDotCoord);
-                if (touchedDot == null) {
-                    return true;
-                } else if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    selectDot(touchedDot);
-                } else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-                    selectDot(touchedDot);
+                if (gameModel.getGameStatus() == GameModel.GameStatus.PLAYING) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
+                            motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                        finishMove();
+                    }
+                    Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
+                    Dot touchedDot = gameModel.getDot(touchedDotCoord);
+                    if (touchedDot == null) {
+                        return true;
+                    } else if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        selectDot(touchedDot);
+                    } else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
+                        selectDot(touchedDot);
+                    }
                 }
                 return true;
             }
@@ -145,14 +175,50 @@ public class GameActivity extends AppCompatActivity {
 
     private void finishMove() {
         gameModel.finishMove();
-        gameModel.clearDotPath();
         updateGameScoreView();
         drawBoard();
+        if (gameModel.getGameType() == GameModel.GameType.MOVES) {
+            checkGameStatus();
+            updateRemainingMovesText();
+        }
     }
 
     private void updateGameScoreView() {
         TextView textView = (TextView) findViewById(R.id.scoreValue);
         textView.setText(String.valueOf(gameModel.getScore()));
+    }
+
+    private void checkGameStatus() {
+        if (gameModel.getGameStatus() == GameModel.GameStatus.DONE) {
+            gameEnd();
+        }
+    }
+
+    private void updateRemainingMovesText() {
+        TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
+        objectiveValueTextView.setText(String.valueOf(gameModel.getMovesRemaining() + " moves"));
+    }
+
+    // TODO update high score
+    private void gameEnd() {
+        showButtons();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int currentHighScore = prefs.getInt("highScore", 0);
+        if (gameModel.getScore() > currentHighScore) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("highScore", gameModel.getScore());
+            editor.apply();
+        }
+    }
+
+    private void showButtons() {
+        findViewById(R.id.newGame).setVisibility(View.VISIBLE);
+        findViewById(R.id.mainMenu).setVisibility(View.VISIBLE);
+    }
+
+    private void hideButtons() {
+        findViewById(R.id.newGame).setVisibility(View.INVISIBLE);
+        findViewById(R.id.mainMenu).setVisibility(View.INVISIBLE);
     }
 
     // TODO fix crash on x/y=0, probably has same issue with x/y=5
@@ -286,6 +352,14 @@ public class GameActivity extends AppCompatActivity {
         coordinateImageMap.put(new Coordinate(3, 5), (ImageView) findViewById(R.id.x3y5));
         coordinateImageMap.put(new Coordinate(4, 5), (ImageView) findViewById(R.id.x4y5));
         coordinateImageMap.put(new Coordinate(5, 5), (ImageView) findViewById(R.id.x5y5));
+    }
+
+    public void onMainMenuClick(View view) {
+        startActivity(new Intent(this, MainActivity.class));
+    }
+
+    public void onNewGameClick(View view) {
+        setup();
     }
 
 }

@@ -1,9 +1,12 @@
 package com.shepherdjerred.dots;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -11,6 +14,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        updateHighScore();
+    }
+
+    private void updateHighScore() {
+        TextView highScoreTextView = (TextView) findViewById(R.id.highScoreValue);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int currentHighScore = prefs.getInt("highScore", 0);
+
+        highScoreTextView.setText(String.valueOf(currentHighScore));
     }
 
     public void onTimedClick(View view) {
@@ -21,6 +34,10 @@ public class MainActivity extends AppCompatActivity {
     public void onMovesClick(View view) {
         Intent intent = buildIntent(GameModel.GameType.MOVES);
         startActivity(intent);
+    }
+
+    public void onSettingsClick(View view) {
+        startActivity(new Intent(this, SettingsActivity.class));
     }
 
     private Intent buildIntent(GameModel.GameType gameType) {

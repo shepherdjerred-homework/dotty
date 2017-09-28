@@ -35,7 +35,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
         <TextView
-            android:id="@+id/timeValue"
+            android:id="@+id/objectiveValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
@@ -61,11 +61,10 @@
             android:id="@+id/objectiveText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/time_remaining"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="8dp"
             android:layout_marginLeft="8dp"
-            app:layout_constraintLeft_toLeftOf="parent" />
+            android:layout_marginTop="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </android.support.constraint.ConstraintLayout>
 
     <GridLayout
@@ -410,5 +409,29 @@
             app:srcCompat="@drawable/dot_black" />
 
     </GridLayout>
+
+    <Button
+        android:id="@+id/newGame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:onClick="onNewGameClick"
+        android:text="New Game"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="@+id/gridLayout"
+        app:layout_constraintTop_toBottomOf="@+id/gridLayout" />
+
+    <Button
+        android:id="@+id/mainMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="8dp"
+        android:onClick="onMainMenuClick"
+        android:text="Main Menu"
+        android:visibility="invisible"
+        app:layout_constraintRight_toRightOf="@+id/gridLayout"
+        app:layout_constraintTop_toBottomOf="@+id/gridLayout" />
 
 </android.support.constraint.ConstraintLayout>

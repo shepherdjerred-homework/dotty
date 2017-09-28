@@ -80,4 +80,5 @@
     <string name="created_by_jerred_shepherd_and_zack_mckee">Created by Jerred Shepherd and Zack McKee</string>
     <string name="score">Score</string>
     <string name="time_remaining">Time Remaining</string>
+    <string name="settings">Settings</string>
 </resources>

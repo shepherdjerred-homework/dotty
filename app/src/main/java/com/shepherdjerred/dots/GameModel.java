@@ -10,27 +10,16 @@ import java.util.List;
 public class GameModel {
     public static int NUM_COLORS = 5;
     private static int NUM_CELLS = 6;
-    private static int INIT_MOVES = 15;
-    private static int INIT_TIME = 30;
-
-    public enum AddDotStatus {
-        ADDED, REJECTED, REMOVED, COMPLETE_CYCLE
-    }
-
-    public enum GameType {
-        TIMED, MOVES
-    }
 
     private GameType mGameType;
-
     private int mScore;
-
     private int mNumCells = NUM_CELLS;
     private Dot[][] mDots;
-
     private int mDotColors[];
-
     private List<Dot> mDotPath;
+    private int movesRemaining;
+    private int timeRemaining;
+    private GameStatus gameStatus;
 
     public GameModel(GameType gameType) {
 
@@ -54,6 +43,7 @@ public class GameModel {
     }
 
     public void newGame() {
+        gameStatus = GameStatus.PLAYING;
         mScore = 0;
 
         for (int y = 0; y < mNumCells; y++) {
@@ -61,14 +51,6 @@ public class GameModel {
                 mDots[y][x].changeColor();
             }
         }
-    }
-
-    public GameType getGameType() {
-        return mGameType;
-    }
-
-    public int getScore() {
-        return mScore;
     }
 
     public Dot getDot(Coordinate coordinate) {
@@ -79,10 +61,6 @@ public class GameModel {
             return null;
         }
         return mDots[coordinate.getY()][coordinate.getX()];
-    }
-
-    public List<Dot> getDotPath() {
-        return mDotPath;
     }
 
     // Sort by y
@@ -170,8 +148,54 @@ public class GameModel {
                 Dot topDot = getDot(new Coordinate(dot.getCoordinate().getX(), 0));
                 topDot.changeColor();
             }
-
             mScore += mDotPath.size();
+            if (mGameType == GameType.MOVES) {
+                movesRemaining--;
+                if (movesRemaining == 0) {
+                    gameStatus = GameStatus.DONE;
+                }
+            }
         }
+        clearDotPath();
+    }
+
+    public GameType getGameType() {
+        return mGameType;
+    }
+
+    public int getScore() {
+        return mScore;
+    }
+
+    public void setMovesRemaining(int movesRemaining) {
+        this.movesRemaining = movesRemaining;
+    }
+
+    public void setTimeRemaining(int timeRemaining) {
+        this.timeRemaining = timeRemaining;
+    }
+
+    public int getMovesRemaining() {
+        return movesRemaining;
+    }
+
+    public int getTimeRemaining() {
+        return timeRemaining;
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
+    }
+
+    public enum AddDotStatus {
+        ADDED, REJECTED, REMOVED, COMPLETE_CYCLE
+    }
+
+    public enum GameType {
+        TIMED, MOVES
+    }
+
+    public enum GameStatus {
+        PLAYING, DONE
     }
 }
