@@ -71,11 +71,8 @@ public class GameModel {
         return mScore;
     }
 
-    public Dot getDot(int x, int y) {
-        if(x < mNumCells && y < mNumCells)
-            return mDots[y][x];
-
-        return null;
+    public Dot getDot(Coordinate coordinate) {
+        return mDots[coordinate.getY()][coordinate.getX()];
     }
 
     public List<Dot> getDotPath() {
@@ -137,7 +134,7 @@ public class GameModel {
                     mDotPath.clear();
                     for (int y = 0; y < mNumCells; y++) {
                         for (int x = 0; x < mNumCells; x++) {
-                            Dot currentDot = getDot(y, x);
+                            Dot currentDot = getDot(new Coordinate(x, y));
                             if (currentDot.getColor() == dot.getColor()) {
                                 dot.setSelected(true);
                                 mDotPath.add(currentDot);
@@ -160,11 +157,11 @@ public class GameModel {
                 dot.setSelected(false);
                 // Put new dots in place
                 for (int y = dot.getCoordinate().getY(); y > 0; y--) {
-                    Dot dotToMove = getDot(dot.getCoordinate().getX(), y);
-                    Dot dotAbove = getDot(dot.getCoordinate().getX(), y - 1);
+                    Dot dotToMove = getDot(new Coordinate(dot.getCoordinate().getX(), y));
+                    Dot dotAbove = getDot(new Coordinate(dot.getCoordinate().getX(), y - 1));
                     dotToMove.setColor(dotAbove.getColor());
                 }
-                Dot topDot = getDot(dot.getCoordinate().getX(), 0);
+                Dot topDot = getDot(new Coordinate(dot.getCoordinate().getX(), 0));
                 topDot.changeColor();
             }
 

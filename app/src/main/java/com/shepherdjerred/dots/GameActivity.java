@@ -48,7 +48,7 @@ public class GameActivity extends AppCompatActivity {
     private void drawBoard() {
         for (ImageView image : coordinateImageMap.values()) {
             Coordinate coordinate = (Coordinate) image.getTag();
-            Dot dot = gameModel.getDot(coordinate.getX(), coordinate.getY());
+            Dot dot = gameModel.getDot(coordinate);
             int color = dot.getColor();
             int drawableInt;
             switch (color) {
@@ -94,11 +94,10 @@ public class GameActivity extends AppCompatActivity {
                 }
 
                 Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
-                Dot touchedDot = gameModel.getDot(touchedDotCoord.getX(), touchedDotCoord.getY());
-                if(touchedDot == null){
+                Dot touchedDot = gameModel.getDot(touchedDotCoord);
+                if (touchedDot == null) {
                     return true;
-                }
-                else if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     selectDot(touchedDot);
                 } else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
                     selectDot(touchedDot);
