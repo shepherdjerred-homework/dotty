@@ -27,12 +27,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onTimedClick(View view) {
-        Intent intent = buildIntent(GameModel.GameType.TIMED);
+        Intent intent = buildIntent(Game.GameType.TIMED);
         startActivity(intent);
     }
 
     public void onMovesClick(View view) {
-        Intent intent = buildIntent(GameModel.GameType.MOVES);
+        Intent intent = buildIntent(Game.GameType.MOVES);
         startActivity(intent);
     }
 
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
-    private Intent buildIntent(GameModel.GameType gameType) {
+    private Intent buildIntent(Game.GameType gameType) {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("gameType", gameType.toString());
         return intent;

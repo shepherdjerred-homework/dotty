@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,91 +21,82 @@ import java.util.Map;
 
 public class GameActivity extends AppCompatActivity {
 
-    private GameModel gameModel;
+    private Game game;
     private Map<Coordinate, ImageView> coordinateImageMap;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         setup();
     }
 
     private void setup() {
-        setupGameModel();
-        setupView();
-        startGame();
-    }
-
-    // TODO cleanup
-    private void setupGameModel() {
-        Intent intent = getIntent();
-        String gameTypeString = intent.getStringExtra("gameType");
-        if (gameTypeString != null) {
-            GameModel.GameType gameType = GameModel.GameType.valueOf(gameTypeString);
-            gameModel = new GameModel(gameType);
-        } else {
-            // Default to timed if it wasn't passed
-            gameModel = new GameModel(GameModel.GameType.TIMED);
-        }
-        switch (gameModel.getGameType()) {
-            case MOVES:
-                setupMovesGame();
-                break;
-            case TIMED:
-                setupTimedGame();
-                break;
-        }
-    }
-
-    private void setupTimedGame() {
-        TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
-        objectiveTextView.setText("Time Remaining");
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        gameModel.setTimeRemaining(Integer.valueOf(prefs.getString("timeAmount", "30")));
-        final TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
-        objectiveValueTextView.setText(String.valueOf(gameModel.getTimeRemaining() + " seconds"));
-
-        // https://developer.android.com/reference/android/os/CountDownTimer.html
-        new CountDownTimer(gameModel.getTimeRemaining(), 1000) {
-
-            public void onTick(long millisUntilFinished) {
-                objectiveValueTextView.setText(millisUntilFinished / 1000 + " seconds");
-            }
-
-            public void onFinish() {
-                objectiveValueTextView.setText("0 seconds");
-                gameEnd();
-            }
-        }.start();
-    }
-
-    private void setupMovesGame() {
-        TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
-        objectiveTextView.setText("Moves Remaining");
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        gameModel.setMovesRemaining(Integer.valueOf(prefs.getString("movesAmount", "15")));
-        updateRemainingMovesText();
-    }
-
-    private void setupView() {
+        createGameObject();
         hideButtons();
         addTagToImages();
         mapImagesToCoords();
         addTouchListenerToGridLayout();
-    }
-
-    private void startGame() {
-        gameModel.newGame();
         drawBoard();
         updateGameScoreView();
+    }
+
+    private void createGameObject() {
+        Intent intent = getIntent();
+        String gameTypeString = intent.getStringExtra("gameType");
+        Game.GameType gameType = Game.GameType.valueOf(gameTypeString);
+
+        TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
+        final TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
+
+        GameEndEvent gameEndEvent = new GameEndEvent() {
+            @Override
+            public void run() {
+                gameEnd();
+            }
+        };
+
+        switch (gameType) {
+            case MOVES:
+                int moves = Integer.valueOf(sharedPreferences.getString("movesAmount", "15"));
+                game = new MovesGame(gameEndEvent, moves);
+
+                objectiveTextView.setText("Moves Remaining");
+
+                updateRemainingMovesText();
+
+                break;
+            case TIMED:
+                int time = Integer.valueOf(sharedPreferences.getString("timeAmount", "30"));
+                game = new TimedGame(gameEndEvent, time);
+                TimedGame timedGame = (TimedGame) game;
+
+                objectiveTextView.setText("Time Remaining");
+                objectiveValueTextView.setText(String.valueOf(time));
+
+                // https://developer.android.com/reference/android/os/CountDownTimer.html
+                new CountDownTimer(time * 1000, 1000) {
+                    public void onTick(long millisUntilFinished) {
+                        objectiveValueTextView.setText(millisUntilFinished / 1000 + " seconds");
+                    }
+                    public void onFinish() {
+                        objectiveValueTextView.setText("0 seconds");
+                    }
+                }.start();
+
+                break;
+        }
+        game.newGame();
     }
 
     private void drawBoard() {
         for (ImageView image : coordinateImageMap.values()) {
             Coordinate coordinate = (Coordinate) image.getTag();
-            Dot dot = gameModel.getDot(coordinate);
+            Dot dot = game.getDot(coordinate);
             int colorInt = dot.getColor();
 
             if (dot.isSelected()) {
@@ -148,13 +141,13 @@ public class GameActivity extends AppCompatActivity {
         gridLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (gameModel.getGameStatus() == GameModel.GameStatus.PLAYING) {
+                if (game.getGameStatus() == Game.GameStatus.PLAYING) {
                     if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
                             motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
                         finishMove();
                     }
                     Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
-                    Dot touchedDot = gameModel.getDot(touchedDotCoord);
+                    Dot touchedDot = game.getDot(touchedDotCoord);
                     if (touchedDot == null) {
                         return true;
                     } else if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -169,15 +162,15 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void selectDot(Dot dot) {
-        gameModel.addDotToPath(dot);
+        game.addDotToPath(dot);
         drawBoard();
     }
 
     private void finishMove() {
-        gameModel.finishMove();
+        game.finishMove();
         updateGameScoreView();
         drawBoard();
-        if (gameModel.getGameType() == GameModel.GameType.MOVES) {
+        if (game instanceof MovesGame) {
             checkGameStatus();
             updateRemainingMovesText();
         }
@@ -185,30 +178,37 @@ public class GameActivity extends AppCompatActivity {
 
     private void updateGameScoreView() {
         TextView textView = (TextView) findViewById(R.id.scoreValue);
-        textView.setText(String.valueOf(gameModel.getScore()));
+        textView.setText(String.valueOf(game.getScore()));
     }
 
     private void checkGameStatus() {
-        if (gameModel.getGameStatus() == GameModel.GameStatus.DONE) {
+        if (game.getGameStatus() == Game.GameStatus.DONE) {
             gameEnd();
         }
     }
 
     private void updateRemainingMovesText() {
         TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
-        objectiveValueTextView.setText(String.valueOf(gameModel.getMovesRemaining() + " moves"));
+        MovesGame movesGame = (MovesGame) game;
+        objectiveValueTextView.setText(String.valueOf(movesGame.getRemainingMoves()));
     }
 
     // TODO update high score
     private void gameEnd() {
-        showButtons();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int currentHighScore = prefs.getInt("highScore", 0);
-        if (gameModel.getScore() > currentHighScore) {
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putInt("highScore", gameModel.getScore());
-            editor.apply();
-        }
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        Runnable runnable  = new Runnable() {
+            @Override
+            public void run() {
+                showButtons();
+                int currentHighScore = sharedPreferences.getInt("highScore", 0);
+                if (game.getScore() > currentHighScore) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt("highScore", game.getScore());
+                    editor.apply();
+                }
+            }
+        };
+        mainHandler.post(runnable);
     }
 
     private void showButtons() {

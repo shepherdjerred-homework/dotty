@@ -11,7 +11,7 @@ public class Dot {
 
     public Dot(Coordinate coordinate) {
         randomGen = new Random();
-        color = randomGen.nextInt(GameModel.NUM_COLORS);
+        color = randomGen.nextInt(Game.NUMBER_OF_COLORS);
         selected = false;
         this.coordinate = coordinate;
     }
@@ -36,7 +36,7 @@ public class Dot {
     }
 
     private void setColor() {
-        color = randomGen.nextInt(GameModel.NUM_COLORS);
+        color = randomGen.nextInt(Game.NUMBER_OF_COLORS);
     }
 
     public Coordinate getCoordinate() {
