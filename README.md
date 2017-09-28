@@ -25,4 +25,5 @@ Zachary McKee (35%)
 * Sounds
 
 Screenshot
+
 ![Screenshot of the app](https://i.imgur.com/mHD6QAD.png)
