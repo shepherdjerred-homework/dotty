@@ -73,6 +73,12 @@ public class GameActivity extends AppCompatActivity {
                     break;
             }
 
+            if (dot.isSelected()) {
+                image.setImageAlpha(100);
+            } else {
+                image.setImageAlpha(255);
+            }
+
             Drawable drawable = getResources().getDrawable(drawableInt);
             image.setImageDrawable(drawable);
         }
@@ -101,10 +107,15 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    private void selectDot(Dot dot, ImageView imageView) {
+        gameModel.addDotToPath(dot);
+        drawBoard();
+    }
+
     private void finishMove() {
         for (Dot dot : gameModel.getDotPath()) {
+            Log.d("FINISH", dot.toString());
             Coordinate coordinate = dot.getCoordinate();
-            coordinateImageMap.get(coordinate).setImageAlpha(255);
         }
         gameModel.clearDotPath();
         gameModel.finishMove();
@@ -112,13 +123,7 @@ public class GameActivity extends AppCompatActivity {
         drawBoard();
     }
 
-    private void selectDot(Dot dot, ImageView imageView) {
-        if (!dot.isSelected()) {
-            imageView.setImageAlpha(100);
-            gameModel.addDotToPath(dot);
-        }
-    }
-
+    // TODO fix crash on game start
     private void updateGameScore() {
         // TextView textView = (TextView) findViewById(R.id.scoreValue);
         // textView.setText(gameModel.getScore());
