@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -114,16 +115,15 @@ public class GameActivity extends AppCompatActivity {
         for (Dot dot : gameModel.getDotPath()) {
             Log.d("FINISHED_DOT_PATH", dot.toString());
         }
-        gameModel.clearDotPath();
         gameModel.finishMove();
+        gameModel.clearDotPath();
         updateGameScore();
         drawBoard();
     }
 
-    // TODO fix crash on game start
     private void updateGameScore() {
-        // TextView textView = (TextView) findViewById(R.id.scoreValue);
-        // textView.setText(gameModel.getScore());
+        TextView textView = (TextView) findViewById(R.id.scoreValue);
+        textView.setText(String.valueOf(gameModel.getScore()));
     }
 
     // TODO fix crash on x/y=0, probably has same issue with x/y=5

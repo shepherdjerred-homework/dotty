@@ -157,11 +157,11 @@ public class GameModel {
                 dot.setSelected(false);
                 // Put new dots in place
                 for (int y = dot.getCoordinate().getY(); y > 0; y--) {
-                    Dot dotToMove = getDot(y, dot.getCoordinate().getX());
-                    Dot dotAbove = getDot(y - 1, dot.getCoordinate().getX());
+                    Dot dotToMove = getDot(dot.getCoordinate().getX(), y);
+                    Dot dotAbove = getDot(dot.getCoordinate().getX(), y - 1);
                     dotToMove.setColor(dotAbove.getColor());
                 }
-                Dot topDot = getDot(0, dot.getCoordinate().getX());
+                Dot topDot = getDot(dot.getCoordinate().getX(), 0);
                 topDot.changeColor();
             }
 
