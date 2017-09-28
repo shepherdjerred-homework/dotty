@@ -54,9 +54,9 @@ public class GameModel {
     public void newGame() {
         mScore = 0;
 
-        for (int row = 0; row < mNumCells; row++) {
-            for (int col = 0; col < mNumCells; col++) {
-                mDots[row][col].changeColor();
+        for (int y = 0; y < mNumCells; y++) {
+            for (int x = 0; x < mNumCells; x++) {
+                mDots[y][x].changeColor();
             }
         }
     }
@@ -69,15 +69,15 @@ public class GameModel {
         return mScore;
     }
 
-    public Dot getDot(int row, int col) {
-        return mDots[row][col];
+    public Dot getDot(int x, int y) {
+        return mDots[y][x];
     }
 
     public List<Dot> getDotPath() {
         return mDotPath;
     }
 
-    // Sort by rows
+    // Sort by y
     private List<Dot> getSortedDotPath() {
         Collections.sort(mDotPath, new Comparator<Dot>() {
             public int compare(Dot dot1, Dot dot2) {
@@ -122,9 +122,9 @@ public class GameModel {
                 } else if (!lastDot.equals(dot) && lastDot.isAdjacent(dot)) {
                     // Made cycle, so add all dots of same color to path
                     mDotPath.clear();
-                    for (int row = 0; row < mNumCells; row++) {
-                        for (int col = 0; col < mNumCells; col++) {
-                            Dot currentDot = getDot(row, col);
+                    for (int y = 0; y < mNumCells; y++) {
+                        for (int x = 0; x < mNumCells; x++) {
+                            Dot currentDot = getDot(y, x);
                             if (currentDot.getColor() == dot.getColor()) {
                                 dot.setSelected(true);
                                 mDotPath.add(currentDot);
@@ -146,9 +146,9 @@ public class GameModel {
             for (Dot dot : getSortedDotPath()) {
                 dot.setSelected(false);
                 // Put new dots in place
-                for (int row = dot.getCoordinate().getY(); row > 0; row--) {
-                    Dot dotToMove = getDot(row, dot.getCoordinate().getX());
-                    Dot dotAbove = getDot(row - 1, dot.getCoordinate().getX());
+                for (int y = dot.getCoordinate().getY(); y > 0; y--) {
+                    Dot dotToMove = getDot(y, dot.getCoordinate().getX());
+                    Dot dotAbove = getDot(y - 1, dot.getCoordinate().getX());
                     dotToMove.setColor(dotAbove.getColor());
                 }
                 Dot topDot = getDot(0, dot.getCoordinate().getX());

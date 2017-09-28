@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ public class GameActivity extends AppCompatActivity {
 
     private GameModel gameModel;
     private Map<Coordinate, ImageView> coordinateImageMap;
-    private Collection<ImageView> selectedImageViews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,18 +94,18 @@ public class GameActivity extends AppCompatActivity {
 
                 Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
                 ImageView touchedImageView = coordinateImageMap.get(touchedDotCoord);
-                Dot touchedDot = gameModel.getDot(touchedDotCoord.getY(), touchedDotCoord.getX());
+                Dot touchedDot = gameModel.getDot(touchedDotCoord.getX(), touchedDotCoord.getY());
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    selectDot(touchedDot, touchedImageView);
+                    selectDot(touchedDot);
                 } else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-                    selectDot(touchedDot, touchedImageView);
+                    selectDot(touchedDot);
                 }
                 return true;
             }
         });
     }
 
-    private void selectDot(Dot dot, ImageView imageView) {
+    private void selectDot(Dot dot) {
         gameModel.addDotToPath(dot);
         drawBoard();
     }
