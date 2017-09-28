@@ -45,7 +45,7 @@ public class Dot {
 
     public boolean isAdjacent(Dot lastDot) {
         int colDiff = Math.abs(coordinate.getX() - lastDot.getCoordinate().getX());
-        int rowDiff = Math.abs(coordinate.getX() - lastDot.getCoordinate().getX());
+        int rowDiff = Math.abs(coordinate.getY() - lastDot.getCoordinate().getY());
         return (colDiff + rowDiff == 1);
     }
 

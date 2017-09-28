@@ -1,5 +1,7 @@
 package com.shepherdjerred.dots;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -99,27 +101,35 @@ public class GameModel {
         if (mDotPath.size() == 0) {
             mDotPath.add(dot);
             dot.setSelected(true);
+            Log.d("MODEL_FIRST", dot.toString());
             return AddDotStatus.ADDED;
         } else {
             Dot lastDot = mDotPath.get(mDotPath.size() - 1);
 
             if (!mDotPath.contains(dot)) {
+                Log.d("MODEL_NEW_DOT", dot.toString());
+
                 // New dot encountered
+                Log.d("IS_ADJACENT", String.valueOf(lastDot.isAdjacent(dot)));
                 if (lastDot.getColor() == dot.getColor() && lastDot.isAdjacent(dot)) {
                     mDotPath.add(dot);
                     dot.setSelected(true);
                     return AddDotStatus.ADDED;
                 }
             } else if (mDotPath.size() > 1) {
+
+
                 // Backtracking or cycle
                 Dot secondLast = mDotPath.get(mDotPath.size() - 2);
 
                 // Backtracking
                 if (secondLast.equals(dot)) {
+                    Log.d("MODEL_BACKTRACK", dot.toString());
                     Dot removedDot = mDotPath.remove(mDotPath.size() - 1);
                     removedDot.setSelected(false);
                     return AddDotStatus.REMOVED;
                 } else if (!lastDot.equals(dot) && lastDot.isAdjacent(dot)) {
+                    Log.d("MODEL_CYCLE", dot.toString());
                     // Made cycle, so add all dots of same color to path
                     mDotPath.clear();
                     for (int y = 0; y < mNumCells; y++) {
@@ -136,7 +146,7 @@ public class GameModel {
                 }
             }
         }
-
+        Log.d("MODEL_REJECTED", dot.toString());
         return AddDotStatus.REJECTED;
     }
 

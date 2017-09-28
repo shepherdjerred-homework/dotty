@@ -93,7 +93,6 @@ public class GameActivity extends AppCompatActivity {
                 }
 
                 Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
-                ImageView touchedImageView = coordinateImageMap.get(touchedDotCoord);
                 Dot touchedDot = gameModel.getDot(touchedDotCoord.getX(), touchedDotCoord.getY());
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     selectDot(touchedDot);
@@ -106,14 +105,14 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void selectDot(Dot dot) {
-        gameModel.addDotToPath(dot);
+        GameModel.AddDotStatus addDotStatus = gameModel.addDotToPath(dot);
+        Log.d("ADD_DOT_STATUS", addDotStatus.toString());
         drawBoard();
     }
 
     private void finishMove() {
         for (Dot dot : gameModel.getDotPath()) {
-            Log.d("FINISH", dot.toString());
-            Coordinate coordinate = dot.getCoordinate();
+            Log.d("FINISHED_DOT_PATH", dot.toString());
         }
         gameModel.clearDotPath();
         gameModel.finishMove();
@@ -138,8 +137,10 @@ public class GameActivity extends AppCompatActivity {
         float clickedY = motionEvent.getY();
         int coordX = (int) Math.ceil(clickedX / heightOfDot) - 1;
         int coordY = (int) Math.ceil(clickedY / widthOfDot) - 1;
-        Log.d("DotsTracking", "X: " + coordX + "Y: " + coordY);
-        return new Coordinate(coordX, coordY);
+
+        Coordinate coordinate = new Coordinate(coordX, coordY);
+        Log.d("DOT_TOUCH_COORDINATE", coordinate.toString());
+        return coordinate;
     }
 
     private void addTagToImages() {
