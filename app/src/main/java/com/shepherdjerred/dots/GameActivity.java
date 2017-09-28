@@ -24,75 +24,106 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        setupGameModel();
+        setupView();
+        startGame();
+    }
+
+    // TODO cleanup
+    private void setupGameModel() {
         Intent intent = getIntent();
         String gameTypeString = intent.getStringExtra("gameType");
         if (gameTypeString != null) {
-            gameModel = new GameModel(GameModel.GameType.valueOf(gameTypeString));
+            GameModel.GameType gameType = GameModel.GameType.valueOf(gameTypeString);
+            gameModel = new GameModel(gameType);
         } else {
-            // Let's default to timed if it wasn't passed
+            // Default to timed if it wasn't passed
             gameModel = new GameModel(GameModel.GameType.TIMED);
         }
+        switch (gameModel.getGameType()) {
+            case MOVES:
+                setupMovesGame();
+                break;
+            case TIMED:
+                setupTimedGame();
+                break;
+        }
+    }
 
+    private void setupTimedGame() {
+        TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
+        objectiveTextView.setText("Time Remaining");
+    }
+
+    private void setupMovesGame() {
+        TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
+        objectiveTextView.setText("Moves Remaining");
+    }
+
+    private void setupView() {
         addTagToImages();
         mapImagesToCoords();
         addTouchListenerToGridLayout();
-        startGame();
     }
 
     private void startGame() {
         gameModel.newGame();
         drawBoard();
-        updateGameScore();
+        updateGameScoreView();
     }
 
     private void drawBoard() {
         for (ImageView image : coordinateImageMap.values()) {
             Coordinate coordinate = (Coordinate) image.getTag();
             Dot dot = gameModel.getDot(coordinate);
-            int color = dot.getColor();
-            int drawableInt;
-            switch (color) {
-                case 0:
-                    drawableInt = R.drawable.dot_red;
-                    break;
-                case 1:
-                    drawableInt = R.drawable.dot_green;
-                    break;
-                case 2:
-                    drawableInt = R.drawable.dot_blue;
-                    break;
-                case 3:
-                    drawableInt = R.drawable.dot_purple;
-                    break;
-                case 4:
-                    drawableInt = R.drawable.dot_yellow;
-                    break;
-                default:
-                    drawableInt = R.drawable.dot_black;
-                    break;
-            }
+            int colorInt = dot.getColor();
 
             if (dot.isSelected()) {
-                image.setImageAlpha(100);
+                image.setImageAlpha(50);
             } else {
                 image.setImageAlpha(255);
             }
 
-            Drawable drawable = getResources().getDrawable(drawableInt, null);
+            Drawable drawable = getDrawableResourceFromColorInt(colorInt);
             image.setImageDrawable(drawable);
         }
     }
 
+    private Drawable getDrawableResourceFromColorInt(int colorInt) {
+        int drawableResourceInt;
+        switch (colorInt) {
+            case 0:
+                drawableResourceInt = R.drawable.dot_red;
+                break;
+            case 1:
+                drawableResourceInt = R.drawable.dot_green;
+                break;
+            case 2:
+                drawableResourceInt = R.drawable.dot_blue;
+                break;
+            case 3:
+                drawableResourceInt = R.drawable.dot_purple;
+                break;
+            case 4:
+                drawableResourceInt = R.drawable.dot_yellow;
+                break;
+            default:
+                drawableResourceInt = R.drawable.dot_black;
+                break;
+        }
+        return getResources().getDrawable(drawableResourceInt, null);
+    }
+
+    // TODO cleanup
     private void addTouchListenerToGridLayout() {
-        final GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
+        GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
         gridLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
+                        motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
                     finishMove();
-                    return true;
                 }
-
                 Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
                 Dot touchedDot = gameModel.getDot(touchedDotCoord);
                 if (touchedDot == null) {
@@ -108,43 +139,49 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void selectDot(Dot dot) {
-        GameModel.AddDotStatus addDotStatus = gameModel.addDotToPath(dot);
-        Log.d("ADD_DOT_STATUS", addDotStatus.toString());
+        gameModel.addDotToPath(dot);
         drawBoard();
     }
 
     private void finishMove() {
-        for (Dot dot : gameModel.getDotPath()) {
-            Log.d("FINISHED_DOT_PATH", dot.toString());
-        }
         gameModel.finishMove();
         gameModel.clearDotPath();
-        updateGameScore();
+        updateGameScoreView();
         drawBoard();
     }
 
-    private void updateGameScore() {
+    private void updateGameScoreView() {
         TextView textView = (TextView) findViewById(R.id.scoreValue);
         textView.setText(String.valueOf(gameModel.getScore()));
     }
 
     // TODO fix crash on x/y=0, probably has same issue with x/y=5
+    // Technically is fixed by checking for null, but we could find a more elegant solution
     private Coordinate getCoordinateFromTouch(MotionEvent motionEvent) {
-        final GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
+        GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
+
         int gridHeight = gridLayout.getHeight();
         int gridWidth = gridLayout.getWidth();
-        int heightOfDot = gridHeight / 6;
-        int widthOfDot = gridWidth / 6;
+
+        int heightOfOneDot = gridHeight / 6;
+        int widthOfOneDot = gridWidth / 6;
+
         float clickedX = motionEvent.getX();
         float clickedY = motionEvent.getY();
-        int coordX = (int) Math.ceil(clickedX / heightOfDot) - 1;
-        int coordY = (int) Math.ceil(clickedY / widthOfDot) - 1;
+
+        int coordX = (int) Math.ceil(clickedX / heightOfOneDot) - 1;
+        int coordY = (int) Math.ceil(clickedY / widthOfOneDot) - 1;
 
         Coordinate coordinate = new Coordinate(coordX, coordY);
         Log.d("DOT_TOUCH_COORDINATE", coordinate.toString());
         return coordinate;
     }
 
+    /**
+     * Sets the tag of all ImageViews to the Coordinate they are associated with
+     * This Coordinated can be accessed with View#getTag
+     * Very verbose but I'm not sure there's a better way to do this
+     */
     private void addTagToImages() {
         // Tag row 0
         findViewById(R.id.x0y0).setTag(new Coordinate(0, 0));
@@ -195,6 +232,10 @@ public class GameActivity extends AppCompatActivity {
         findViewById(R.id.x5y5).setTag(new Coordinate(5, 5));
     }
 
+    /**
+     * Maps Coordinates to the ImageView they are associated with
+     * Very verbose but I'm not sure there's a better way to do this
+     */
     private void mapImagesToCoords() {
         coordinateImageMap = new HashMap<>();
 
