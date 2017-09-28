@@ -42,9 +42,9 @@ public class GameModel {
 
         mDots = new Dot[mNumCells][mNumCells];
 
-        for (int row = 0; row < mNumCells; row++) {
-            for (int col = 0; col < mNumCells; col++) {
-                mDots[row][col] = new Dot(row, col);
+        for (int y = 0; y < mNumCells; y++) {
+            for (int x = 0; x < mNumCells; x++) {
+                mDots[y][x] = new Dot(new Coordinate(x, y));
             }
         }
 
@@ -81,7 +81,7 @@ public class GameModel {
     private List<Dot> getSortedDotPath() {
         Collections.sort(mDotPath, new Comparator<Dot>() {
             public int compare(Dot dot1, Dot dot2) {
-                return Integer.compare(dot1.getRow(), dot2.getRow());
+                return Integer.compare(dot1.getCoordinate().getY(), dot2.getCoordinate().getY());
             }
         });
 
@@ -146,12 +146,12 @@ public class GameModel {
             for (Dot dot : getSortedDotPath()) {
                 dot.setSelected(false);
                 // Put new dots in place
-                for (int row = dot.getRow(); row > 0; row--) {
-                    Dot dotToMove = getDot(row, dot.getCol());
-                    Dot dotAbove = getDot(row - 1, dot.getCol());
-                    dotToMove.setColor(dotAbove.getColor());;
+                for (int row = dot.getCoordinate().getY(); row > 0; row--) {
+                    Dot dotToMove = getDot(row, dot.getCoordinate().getX());
+                    Dot dotAbove = getDot(row - 1, dot.getCoordinate().getX());
+                    dotToMove.setColor(dotAbove.getColor());
                 }
-                Dot topDot = getDot(0, dot.getCol());
+                Dot topDot = getDot(0, dot.getCoordinate().getX());
                 topDot.changeColor();
             }
 

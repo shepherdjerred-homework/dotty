@@ -4,18 +4,16 @@ import java.util.Random;
 
 public class Dot {
     private int color;
-    private int row;
-    private int col;
+    private Coordinate coordinate;
     private boolean selected;
 
     private Random randomGen;
 
-    public Dot(int row, int col) {
+    public Dot(Coordinate coordinate) {
         randomGen = new Random();
         color = randomGen.nextInt(GameModel.NUM_COLORS);
         selected = false;
-        this.row = row;
-        this.col = col;
+        this.coordinate = coordinate;
     }
 
     public void setColor(int color) {
@@ -37,21 +35,17 @@ public class Dot {
         return color;
     }
 
-    public int getRow() {
-        return row;
-    }
-
-    public int getCol() {
-        return col;
-    }
-
     private void setColor() {
         color = randomGen.nextInt(GameModel.NUM_COLORS);
     }
 
+    public Coordinate getCoordinate() {
+        return coordinate;
+    }
+
     public boolean isAdjacent(Dot lastDot) {
-        int colDiff = Math.abs(this.col - lastDot.col);
-        int rowDiff = Math.abs(this.row - lastDot.row);
+        int colDiff = Math.abs(coordinate.getX() - lastDot.getCoordinate().getX());
+        int rowDiff = Math.abs(coordinate.getX() - lastDot.getCoordinate().getX());
         return (colDiff + rowDiff == 1);
     }
 
@@ -66,17 +60,28 @@ public class Dot {
 
         Dot dot = (Dot) o;
 
-        return row == dot.row && col == dot.col;
+        if (color != dot.color) return false;
+        if (selected != dot.selected) return false;
+        if (!coordinate.equals(dot.coordinate)) return false;
+        return randomGen != null ? randomGen.equals(dot.randomGen) : dot.randomGen == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = color;
+        result = 31 * result + coordinate.hashCode();
+        result = 31 * result + (selected ? 1 : 0);
+        result = 31 * result + (randomGen != null ? randomGen.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "Dot{" +
                 "color=" + color +
-                ", row=" + row +
-                ", col=" + col +
+                ", coordinate=" + coordinate +
                 ", selected=" + selected +
-                ", randomGen=" + randomGen +
                 '}';
     }
 }

@@ -9,8 +9,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +18,7 @@ public class GameActivity extends AppCompatActivity {
 
     private GameModel gameModel;
     private Map<Coordinate, ImageView> coordinateImageMap;
+    private Collection<ImageView> selectedImageViews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,31 +83,48 @@ public class GameActivity extends AppCompatActivity {
         gridLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Coordinate dotCoord = getCoordinateFromTouch(motionEvent);
-                ImageView imageView = coordinateImageMap.get(dotCoord);
-                Dot dot = (Dot) imageView.getTag();
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-
-                }
-                if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-                    gameModel.addDotToPath(dot);
-                }
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
-                    gameModel.clearDotPath();
-                    gameModel.finishMove();
-                    updateGameScore();
-                    drawBoard();
+                    finishMove();
+                    return true;
+                }
+
+                Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
+                ImageView touchedImageView = coordinateImageMap.get(touchedDotCoord);
+                Dot touchedDot = gameModel.getDot(touchedDotCoord.getY(), touchedDotCoord.getX());
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    selectDot(touchedDot, touchedImageView);
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
+                    selectDot(touchedDot, touchedImageView);
                 }
                 return true;
             }
         });
     }
 
-    private void updateGameScore() {
-        TextView textView = (TextView) findViewById(R.id.scoreValue);
-        textView.setText(gameModel.getScore());
+    private void finishMove() {
+        for (Dot dot : gameModel.getDotPath()) {
+            Coordinate coordinate = dot.getCoordinate();
+            coordinateImageMap.get(coordinate).setImageAlpha(255);
+        }
+        gameModel.clearDotPath();
+        gameModel.finishMove();
+        updateGameScore();
+        drawBoard();
     }
 
+    private void selectDot(Dot dot, ImageView imageView) {
+        if (!dot.isSelected()) {
+            imageView.setImageAlpha(100);
+            gameModel.addDotToPath(dot);
+        }
+    }
+
+    private void updateGameScore() {
+        // TextView textView = (TextView) findViewById(R.id.scoreValue);
+        // textView.setText(gameModel.getScore());
+    }
+
+    // TODO fix crash on x/y=0, probably has same issue with x/y=5
     private Coordinate getCoordinateFromTouch(MotionEvent motionEvent) {
         final GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
         int gridHeight = gridLayout.getHeight();
