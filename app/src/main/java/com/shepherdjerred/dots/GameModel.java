@@ -72,7 +72,10 @@ public class GameModel {
     }
 
     public Dot getDot(int x, int y) {
-        return mDots[y][x];
+        if(x < mNumCells && y < mNumCells)
+            return mDots[y][x];
+
+        return null;
     }
 
     public List<Dot> getDotPath() {

@@ -77,7 +77,7 @@ public class GameActivity extends AppCompatActivity {
                 image.setImageAlpha(255);
             }
 
-            Drawable drawable = getResources().getDrawable(drawableInt);
+            Drawable drawable = getResources().getDrawable(drawableInt, null);
             image.setImageDrawable(drawable);
         }
     }
@@ -94,7 +94,10 @@ public class GameActivity extends AppCompatActivity {
 
                 Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
                 Dot touchedDot = gameModel.getDot(touchedDotCoord.getX(), touchedDotCoord.getY());
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                if(touchedDot == null){
+                    return true;
+                }
+                else if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     selectDot(touchedDot);
                 } else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
                     selectDot(touchedDot);
