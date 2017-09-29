@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Dots</string>
+    <string name="app_name">Dotty</string>
     <string name="title_activity_game">GameActivity</string>
     <string name="title_activity_settings">Settings</string>
 
