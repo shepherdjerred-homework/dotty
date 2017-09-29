@@ -1,6 +1,8 @@
 # [Dots](https://github.com/ShepherdJerred/dots)
 An Android game about connecting dots
 
+Avaliable on the [Google Play Store](https://play.google.com/store/apps/details?id=com.shepherdjerred.dots)
+
 ### Features
 * Timed and limited move modes
 * Change time and move limits
