@@ -11,17 +11,17 @@ Avaliable on the [Google Play Store](https://play.google.com/store/apps/details?
 * None
 
 ### Contributions
-Jerred Shepherd (65%)
+Jerred Shepherd (60%)
 * Touch logic
 * Logic for timed and move modes
 * Main menu, game, and settings layout
 * App icon
 * Dot XML resource files
 
-Zachary McKee (35%)
+Zachary McKee (40%)
 * Landscape layouts and state save/restore
-* Animation (extra credit)
 * Sounds
+* Major refactoring to make reorienting work
 
 Screenshot
 
