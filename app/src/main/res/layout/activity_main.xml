@@ -64,7 +64,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:text="HIGH SCORE VALUE"
+        android:text="@string/high_score"
         android:textAppearance="@android:style/TextAppearance.Material.Caption"
         app:layout_constraintBottom_toTopOf="@+id/textView3"
         app:layout_constraintLeft_toLeftOf="parent"

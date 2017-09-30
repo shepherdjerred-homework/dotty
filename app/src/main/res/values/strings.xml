@@ -83,4 +83,5 @@
     <string name="settings">Settings</string>
     <string name="noTimeLeft">0 seconds</string>
     <string name="RemainingSeconds">%d seconds</string>
+    <string name="high_score_value">HIGH SCORE VALUE</string>
 </resources>
