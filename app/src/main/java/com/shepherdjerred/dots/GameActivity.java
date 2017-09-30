@@ -56,10 +56,27 @@ public class GameActivity extends AppCompatActivity {
                     public void run() {
                         gameEnd();
                     }
-                },savedInstanceState.getInt("moves"));
-                ((TimedGame) game).loadFromGameBundle(b);
+                },savedInstanceState.getInt("time"));
+                ((TimedGame)game).loadFromGameBundle(b);
+                int time = savedInstanceState.getInt("time");
+
+                TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
+                TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
+
+                objectiveTextView.setText(R.string.time_remaining);
+                objectiveValueTextView.setText(String.valueOf(time));
+
+                // https://developer.android.com/reference/android/os/CountDownTimer.html
+                new CountDownTimer(time * 1000, 1000) {
+                    public void onTick(long millisUntilFinished) {
+                        ((TextView) findViewById(R.id.objectiveText)).setText(millisUntilFinished / 1000 + " seconds");
+                    }
+                    public void onFinish() {
+                        ((TextView) findViewById(R.id.objectiveText)).setText("0 seconds");
+                    }
+                }.start();
+
             }
-            createGameObject();
             setup();
         }
     }
@@ -102,16 +119,16 @@ public class GameActivity extends AppCompatActivity {
                 game = new TimedGame(gameEndEvent, time);
                 TimedGame timedGame = (TimedGame) game;
 
-                objectiveTextView.setText("Time Remaining");
+                objectiveTextView.setText(R.string.time_remaining);
                 objectiveValueTextView.setText(String.valueOf(time));
 
                 // https://developer.android.com/reference/android/os/CountDownTimer.html
                 new CountDownTimer(time * 1000, 1000) {
                     public void onTick(long millisUntilFinished) {
-                        objectiveValueTextView.setText(millisUntilFinished / 1000 + " seconds");
+                        ((TextView) findViewById(R.id.objectiveText)).setText(millisUntilFinished / 1000 + " seconds");
                     }
                     public void onFinish() {
-                        objectiveValueTextView.setText("0 seconds");
+                        ((TextView) findViewById(R.id.objectiveText)).setText("0 seconds");
                     }
                 }.start();
 
