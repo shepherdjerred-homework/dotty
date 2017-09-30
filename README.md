@@ -10,9 +10,6 @@ Avaliable on the [Google Play Store](https://play.google.com/store/apps/details?
 ### Known bugs
 * None
 
-### Extra credit
-* Animation
-
 ### Contributions
 Jerred Shepherd (65%)
 * Touch logic

@@ -67,11 +67,11 @@ public class GameActivity extends AppCompatActivity {
                 // https://developer.android.com/reference/android/os/CountDownTimer.html
                 new CountDownTimer(time * 1000, 1000) {
                     public void onTick(long millisUntilFinished) {
-                        ((TextView) findViewById(R.id.objectiveText)).setText(String.format(getString(R.string.RemainingSeconds), millisUntilFinished / 1000));
+                        ((TextView) findViewById(R.id.objectiveValue)).setText(String.format(getString(R.string.RemainingSeconds), millisUntilFinished / 1000));
                     }
 
                     public void onFinish() {
-                        ((TextView) findViewById(R.id.objectiveText)).setText(R.string.noTimeLeft);
+                        ((TextView) findViewById(R.id.objectiveValue)).setText(R.string.noTimeLeft);
                     }
                 }.start();
 
@@ -133,11 +133,11 @@ public class GameActivity extends AppCompatActivity {
                 // https://developer.android.com/reference/android/os/CountDownTimer.html
                 new CountDownTimer(time * 1000, 1000) {
                     public void onTick(long millisUntilFinished) {
-                        ((TextView) findViewById(R.id.objectiveText)).setText(String.format(getString(R.string.RemainingSeconds), millisUntilFinished / 1000));
+                        ((TextView) findViewById(R.id.objectiveValue)).setText(String.format(getString(R.string.RemainingSeconds), millisUntilFinished / 1000));
                     }
 
                     public void onFinish() {
-                        ((TextView) findViewById(R.id.objectiveText)).setText(R.string.noTimeLeft);
+                        ((TextView) findViewById(R.id.objectiveValue)).setText(R.string.noTimeLeft);
                     }
                 }.start();
 
@@ -435,6 +435,15 @@ public class GameActivity extends AppCompatActivity {
         } else if (mGame instanceof TimedGame) {
             b = ((TimedGame) mGame).getGameBundle();
             b.putString("type", "timed");
+            String timeStr = (String)((TextView)findViewById(R.id.objectiveValue)).getText();
+            if(Character.isDigit(timeStr.charAt(1))){
+                timeStr = timeStr.substring(0,2);
+            }
+            else{
+                timeStr = timeStr.charAt(0) + "";
+            }
+            int time = Integer.parseInt(timeStr);
+            outState.putInt("time",time);
         }
         outState.putBundle("mGame", b);
         //TextView textView = (TextView) findViewById(R.id.timeValue);
