@@ -59,7 +59,7 @@
         app:layout_constraintRight_toRightOf="parent" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/highScoreValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="###"
@@ -84,8 +84,20 @@
         android:text="@string/created_by_jerred_shepherd_and_zack_mckee"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/setting"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@id/setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onSettingsClick"
+        android:text="@string/settings"
+        app:layout_constraintTop_toBottomOf="@id/highScoreValue"
+        app:layout_constraintBottom_toTopOf="@id/textView3"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
     <TextView
         android:id="@+id/textView4"
@@ -93,7 +105,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="12dp"
         android:text="Dots"
         android:textAppearance="@android:style/TextAppearance.Material.Display1"
         app:layout_constraintLeft_toLeftOf="parent"

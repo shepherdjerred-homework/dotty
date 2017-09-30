@@ -22,7 +22,9 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             //Restore game state
-
+            String highScore = savedInstanceState.getString("highScore");
+            TextView highScoreView = (TextView) findViewById(R.id.highScoreValue);
+            highScoreView.setText(highScore);
         }
     }
 
@@ -59,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
 
-
+        TextView highScore = (TextView) findViewById(R.id.highScoreValue);
+        String highScoreStr = (String)highScore.getText();
+        outState.putString("highScore", highScoreStr);
     }
 }

@@ -45,6 +45,10 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }, savedInstanceState.getInt("moves"));
                 ((MovesGame) mGame).loadFromGameBundle(b);
+                TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
+                TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
+
+                objectiveTextView.setText(R.string.moves_remaining);
                 updateRemainingMovesText();
 
             } else {

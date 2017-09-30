@@ -84,4 +84,5 @@
     <string name="noTimeLeft">0 seconds</string>
     <string name="RemainingSeconds">%d seconds</string>
     <string name="high_score_value">HIGH SCORE VALUE</string>
+    <string name="moves_remaining">Moves Remaining</string>
 </resources>
