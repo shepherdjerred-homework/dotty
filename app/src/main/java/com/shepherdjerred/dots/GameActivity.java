@@ -22,42 +22,40 @@ import java.util.Map;
 
 public class GameActivity extends AppCompatActivity {
 
-    private Game game;
-    private Map<Coordinate, ImageView> coordinateImageMap;
-    SharedPreferences sharedPreferences;
+    private Game mGame;
+    private Map<Coordinate, ImageView> mCoordinateImageMap;
+    SharedPreferences mSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             createGameObject();
             hideButtons();
             setup();
-        }
-        else{
-            Bundle b = savedInstanceState.getBundle("game");
-            if(b.get("type").equals("move")){
-                game = new MovesGame(new GameEndEvent() {
+        } else {
+            Bundle b = savedInstanceState.getBundle("mGame");
+            if (b.get("type").equals("move")) {
+                mGame = new MovesGame(new GameEndEvent() {
                     @Override
                     public void run() {
                         gameEnd();
                     }
                 }, savedInstanceState.getInt("moves"));
-                ((MovesGame) game).loadFromGameBundle(b);
+                ((MovesGame) mGame).loadFromGameBundle(b);
                 updateRemainingMovesText();
 
-            }
-            else{
-                game = new TimedGame(new GameEndEvent() {
+            } else {
+                mGame = new TimedGame(new GameEndEvent() {
                     @Override
                     public void run() {
                         gameEnd();
                     }
-                },savedInstanceState.getInt("time"));
-                ((TimedGame)game).loadFromGameBundle(b);
+                }, savedInstanceState.getInt("time"));
+                ((TimedGame) mGame).loadFromGameBundle(b);
                 int time = savedInstanceState.getInt("time");
 
                 TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
@@ -69,10 +67,11 @@ public class GameActivity extends AppCompatActivity {
                 // https://developer.android.com/reference/android/os/CountDownTimer.html
                 new CountDownTimer(time * 1000, 1000) {
                     public void onTick(long millisUntilFinished) {
-                        ((TextView) findViewById(R.id.objectiveText)).setText(millisUntilFinished / 1000 + " seconds");
+                        ((TextView) findViewById(R.id.objectiveText)).setText(String.format(getString(R.string.RemainingSeconds), millisUntilFinished / 1000));
                     }
+
                     public void onFinish() {
-                        ((TextView) findViewById(R.id.objectiveText)).setText("0 seconds");
+                        ((TextView) findViewById(R.id.objectiveText)).setText(R.string.noTimeLeft);
                     }
                 }.start();
 
@@ -106,8 +105,13 @@ public class GameActivity extends AppCompatActivity {
 
         switch (gameType) {
             case MOVES:
-                int moves = Integer.valueOf(sharedPreferences.getString("movesAmount", "15"));
-                game = new MovesGame(gameEndEvent, moves);
+                int moves;
+                try {
+                    moves = Integer.valueOf(mSharedPreferences.getString("movesAmount", "15"));
+                } catch (NumberFormatException e) {
+                    moves = 15;
+                }
+                mGame = new MovesGame(gameEndEvent, moves);
 
                 objectiveTextView.setText(R.string.time_remaining);
 
@@ -115,9 +119,13 @@ public class GameActivity extends AppCompatActivity {
 
                 break;
             case TIMED:
-                int time = Integer.valueOf(sharedPreferences.getString("timeAmount", "30"));
-                game = new TimedGame(gameEndEvent, time);
-                TimedGame timedGame = (TimedGame) game;
+                int time;
+                try {
+                    time = Integer.valueOf(mSharedPreferences.getString("timeAmount", "30"));
+                } catch (NumberFormatException e) {
+                    time = 30;
+                }
+                mGame = new TimedGame(gameEndEvent, time);
 
                 objectiveTextView.setText(R.string.time_remaining);
                 objectiveValueTextView.setText(String.valueOf(time));
@@ -125,22 +133,23 @@ public class GameActivity extends AppCompatActivity {
                 // https://developer.android.com/reference/android/os/CountDownTimer.html
                 new CountDownTimer(time * 1000, 1000) {
                     public void onTick(long millisUntilFinished) {
-                        ((TextView) findViewById(R.id.objectiveText)).setText(millisUntilFinished / 1000 + " seconds");
+                        ((TextView) findViewById(R.id.objectiveText)).setText(String.format(getString(R.string.RemainingSeconds), millisUntilFinished / 1000));
                     }
+
                     public void onFinish() {
-                        ((TextView) findViewById(R.id.objectiveText)).setText("0 seconds");
+                        ((TextView) findViewById(R.id.objectiveText)).setText(R.string.noTimeLeft);
                     }
                 }.start();
 
                 break;
         }
-        game.newGame();
+        mGame.newGame();
     }
 
     private void drawBoard() {
-        for (ImageView image : coordinateImageMap.values()) {
+        for (ImageView image : mCoordinateImageMap.values()) {
             Coordinate coordinate = (Coordinate) image.getTag();
-            Dot dot = game.getDot(coordinate);
+            Dot dot = mGame.getDot(coordinate);
             int colorInt = dot.getColor();
 
             if (dot.isSelected()) {
@@ -185,13 +194,13 @@ public class GameActivity extends AppCompatActivity {
         gridLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (game.getGameStatus() == Game.GameStatus.PLAYING) {
+                if (mGame.getGameStatus() == Game.GameStatus.PLAYING) {
                     if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
                             motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
                         finishMove();
                     }
                     Coordinate touchedDotCoord = getCoordinateFromTouch(motionEvent);
-                    Dot touchedDot = game.getDot(touchedDotCoord);
+                    Dot touchedDot = mGame.getDot(touchedDotCoord);
                     if (touchedDot == null) {
                         return true;
                     } else if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -206,17 +215,17 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void selectDot(Dot dot) {
-        game.addDotToPath(dot);
+        mGame.addDotToPath(dot);
         final MediaPlayer mp = MediaPlayer.create(this, R.raw.note_e);
         mp.start();
         drawBoard();
     }
 
     private void finishMove() {
-        game.finishMove();
+        mGame.finishMove();
         updateGameScoreView();
         drawBoard();
-        if (game instanceof MovesGame) {
+        if (mGame instanceof MovesGame) {
             checkGameStatus();
             updateRemainingMovesText();
         }
@@ -224,38 +233,38 @@ public class GameActivity extends AppCompatActivity {
 
     private void updateGameScoreView() {
         TextView textView = (TextView) findViewById(R.id.scoreValue);
-        textView.setText(String.valueOf(game.getScore()));
+        textView.setText(String.valueOf(mGame.getScore()));
     }
 
-    private void updateTime(){
+    private void updateTime() {
         TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
-        TimedGame timedGame = (TimedGame) game;
+        TimedGame timedGame = (TimedGame) mGame;
         objectiveValueTextView.setText(String.valueOf(timedGame.getGameDurationInSeconds()));
     }
 
     private void checkGameStatus() {
-        if (game.getGameStatus() == Game.GameStatus.DONE) {
+        if (mGame.getGameStatus() == Game.GameStatus.DONE) {
             gameEnd();
         }
     }
 
     private void updateRemainingMovesText() {
         TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
-        MovesGame movesGame = (MovesGame) game;
+        MovesGame movesGame = (MovesGame) mGame;
         objectiveValueTextView.setText(String.valueOf(movesGame.getRemainingMoves()));
     }
 
     // TODO update high score
     private void gameEnd() {
         Handler mainHandler = new Handler(Looper.getMainLooper());
-        Runnable runnable  = new Runnable() {
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 showButtons();
-                int currentHighScore = sharedPreferences.getInt("highScore", 0);
-                if (game.getScore() > currentHighScore) {
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putInt("highScore", game.getScore());
+                int currentHighScore = mSharedPreferences.getInt("highScore", 0);
+                if (mGame.getScore() > currentHighScore) {
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putInt("highScore", mGame.getScore());
                     editor.apply();
                 }
             }
@@ -353,55 +362,55 @@ public class GameActivity extends AppCompatActivity {
      * Very verbose but I'm not sure there's a better way to do this
      */
     private void mapImagesToCoords() {
-        coordinateImageMap = new HashMap<>();
+        mCoordinateImageMap = new HashMap<>();
 
         // Map row 0
-        coordinateImageMap.put(new Coordinate(0, 0), (ImageView) findViewById(R.id.x0y0));
-        coordinateImageMap.put(new Coordinate(1, 0), (ImageView) findViewById(R.id.x1y0));
-        coordinateImageMap.put(new Coordinate(2, 0), (ImageView) findViewById(R.id.x2y0));
-        coordinateImageMap.put(new Coordinate(3, 0), (ImageView) findViewById(R.id.x3y0));
-        coordinateImageMap.put(new Coordinate(4, 0), (ImageView) findViewById(R.id.x4y0));
-        coordinateImageMap.put(new Coordinate(5, 0), (ImageView) findViewById(R.id.x5y0));
+        mCoordinateImageMap.put(new Coordinate(0, 0), (ImageView) findViewById(R.id.x0y0));
+        mCoordinateImageMap.put(new Coordinate(1, 0), (ImageView) findViewById(R.id.x1y0));
+        mCoordinateImageMap.put(new Coordinate(2, 0), (ImageView) findViewById(R.id.x2y0));
+        mCoordinateImageMap.put(new Coordinate(3, 0), (ImageView) findViewById(R.id.x3y0));
+        mCoordinateImageMap.put(new Coordinate(4, 0), (ImageView) findViewById(R.id.x4y0));
+        mCoordinateImageMap.put(new Coordinate(5, 0), (ImageView) findViewById(R.id.x5y0));
 
         // Map row 1
-        coordinateImageMap.put(new Coordinate(0, 1), (ImageView) findViewById(R.id.x0y1));
-        coordinateImageMap.put(new Coordinate(1, 1), (ImageView) findViewById(R.id.x1y1));
-        coordinateImageMap.put(new Coordinate(2, 1), (ImageView) findViewById(R.id.x2y1));
-        coordinateImageMap.put(new Coordinate(3, 1), (ImageView) findViewById(R.id.x3y1));
-        coordinateImageMap.put(new Coordinate(4, 1), (ImageView) findViewById(R.id.x4y1));
-        coordinateImageMap.put(new Coordinate(5, 1), (ImageView) findViewById(R.id.x5y1));
+        mCoordinateImageMap.put(new Coordinate(0, 1), (ImageView) findViewById(R.id.x0y1));
+        mCoordinateImageMap.put(new Coordinate(1, 1), (ImageView) findViewById(R.id.x1y1));
+        mCoordinateImageMap.put(new Coordinate(2, 1), (ImageView) findViewById(R.id.x2y1));
+        mCoordinateImageMap.put(new Coordinate(3, 1), (ImageView) findViewById(R.id.x3y1));
+        mCoordinateImageMap.put(new Coordinate(4, 1), (ImageView) findViewById(R.id.x4y1));
+        mCoordinateImageMap.put(new Coordinate(5, 1), (ImageView) findViewById(R.id.x5y1));
 
         // Map row 2
-        coordinateImageMap.put(new Coordinate(0, 2), (ImageView) findViewById(R.id.x0y2));
-        coordinateImageMap.put(new Coordinate(1, 2), (ImageView) findViewById(R.id.x1y2));
-        coordinateImageMap.put(new Coordinate(2, 2), (ImageView) findViewById(R.id.x2y2));
-        coordinateImageMap.put(new Coordinate(3, 2), (ImageView) findViewById(R.id.x3y2));
-        coordinateImageMap.put(new Coordinate(4, 2), (ImageView) findViewById(R.id.x4y2));
-        coordinateImageMap.put(new Coordinate(5, 2), (ImageView) findViewById(R.id.x5y2));
+        mCoordinateImageMap.put(new Coordinate(0, 2), (ImageView) findViewById(R.id.x0y2));
+        mCoordinateImageMap.put(new Coordinate(1, 2), (ImageView) findViewById(R.id.x1y2));
+        mCoordinateImageMap.put(new Coordinate(2, 2), (ImageView) findViewById(R.id.x2y2));
+        mCoordinateImageMap.put(new Coordinate(3, 2), (ImageView) findViewById(R.id.x3y2));
+        mCoordinateImageMap.put(new Coordinate(4, 2), (ImageView) findViewById(R.id.x4y2));
+        mCoordinateImageMap.put(new Coordinate(5, 2), (ImageView) findViewById(R.id.x5y2));
 
         // Map row 3
-        coordinateImageMap.put(new Coordinate(0, 3), (ImageView) findViewById(R.id.x0y3));
-        coordinateImageMap.put(new Coordinate(1, 3), (ImageView) findViewById(R.id.x1y3));
-        coordinateImageMap.put(new Coordinate(2, 3), (ImageView) findViewById(R.id.x2y3));
-        coordinateImageMap.put(new Coordinate(3, 3), (ImageView) findViewById(R.id.x3y3));
-        coordinateImageMap.put(new Coordinate(4, 3), (ImageView) findViewById(R.id.x4y3));
-        coordinateImageMap.put(new Coordinate(5, 3), (ImageView) findViewById(R.id.x5y3));
+        mCoordinateImageMap.put(new Coordinate(0, 3), (ImageView) findViewById(R.id.x0y3));
+        mCoordinateImageMap.put(new Coordinate(1, 3), (ImageView) findViewById(R.id.x1y3));
+        mCoordinateImageMap.put(new Coordinate(2, 3), (ImageView) findViewById(R.id.x2y3));
+        mCoordinateImageMap.put(new Coordinate(3, 3), (ImageView) findViewById(R.id.x3y3));
+        mCoordinateImageMap.put(new Coordinate(4, 3), (ImageView) findViewById(R.id.x4y3));
+        mCoordinateImageMap.put(new Coordinate(5, 3), (ImageView) findViewById(R.id.x5y3));
 
         // Map row 4
-        coordinateImageMap.put(new Coordinate(0, 4), (ImageView) findViewById(R.id.x0y4));
-        coordinateImageMap.put(new Coordinate(1, 4), (ImageView) findViewById(R.id.x1y4));
-        coordinateImageMap.put(new Coordinate(2, 4), (ImageView) findViewById(R.id.x2y4));
-        coordinateImageMap.put(new Coordinate(3, 4), (ImageView) findViewById(R.id.x3y4));
-        coordinateImageMap.put(new Coordinate(4, 4), (ImageView) findViewById(R.id.x4y4));
-        coordinateImageMap.put(new Coordinate(5, 4), (ImageView) findViewById(R.id.x5y4));
+        mCoordinateImageMap.put(new Coordinate(0, 4), (ImageView) findViewById(R.id.x0y4));
+        mCoordinateImageMap.put(new Coordinate(1, 4), (ImageView) findViewById(R.id.x1y4));
+        mCoordinateImageMap.put(new Coordinate(2, 4), (ImageView) findViewById(R.id.x2y4));
+        mCoordinateImageMap.put(new Coordinate(3, 4), (ImageView) findViewById(R.id.x3y4));
+        mCoordinateImageMap.put(new Coordinate(4, 4), (ImageView) findViewById(R.id.x4y4));
+        mCoordinateImageMap.put(new Coordinate(5, 4), (ImageView) findViewById(R.id.x5y4));
 
         // Map row 5
-        coordinateImageMap.put(new Coordinate(0, 5), (ImageView) findViewById(R.id.x0y5));
-        coordinateImageMap.put(new Coordinate(1, 5), (ImageView) findViewById(R.id.x1y5));
-        coordinateImageMap.put(new Coordinate(2, 5), (ImageView) findViewById(R.id.x2y5));
-        coordinateImageMap.put(new Coordinate(3, 5), (ImageView) findViewById(R.id.x3y5));
-        coordinateImageMap.put(new Coordinate(4, 5), (ImageView) findViewById(R.id.x4y5));
-        coordinateImageMap.put(new Coordinate(5, 5), (ImageView) findViewById(R.id.x5y5));
+        mCoordinateImageMap.put(new Coordinate(0, 5), (ImageView) findViewById(R.id.x0y5));
+        mCoordinateImageMap.put(new Coordinate(1, 5), (ImageView) findViewById(R.id.x1y5));
+        mCoordinateImageMap.put(new Coordinate(2, 5), (ImageView) findViewById(R.id.x2y5));
+        mCoordinateImageMap.put(new Coordinate(3, 5), (ImageView) findViewById(R.id.x3y5));
+        mCoordinateImageMap.put(new Coordinate(4, 5), (ImageView) findViewById(R.id.x4y5));
+        mCoordinateImageMap.put(new Coordinate(5, 5), (ImageView) findViewById(R.id.x5y5));
     }
 
     public void onMainMenuClick(View view) {
@@ -415,20 +424,19 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState){
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        //Save the game
+        //Save the mGame
         Bundle b = null;
-        if(game instanceof MovesGame){
-            b = ((MovesGame) game).getGameBundle();
+        if (mGame instanceof MovesGame) {
+            b = ((MovesGame) mGame).getGameBundle();
             b.putString("type", "move");
-        }
-        else if(game instanceof TimedGame){
-            b = ((TimedGame) game).getGameBundle();
+        } else if (mGame instanceof TimedGame) {
+            b = ((TimedGame) mGame).getGameBundle();
             b.putString("type", "timed");
         }
-        outState.putBundle("game",b);
+        outState.putBundle("mGame", b);
         //TextView textView = (TextView) findViewById(R.id.timeValue);
         //String strMoves = (String)textView.getText();
         //int moves = (strMoves.equals("")) ? 0 : Integer.parseInt(strMoves);
@@ -436,7 +444,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
     }
 }
