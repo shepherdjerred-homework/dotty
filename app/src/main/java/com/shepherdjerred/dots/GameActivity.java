@@ -59,7 +59,6 @@ public class GameActivity extends AppCompatActivity {
                 ((TimedGame) game).loadFromGameBundle(b);
             }
             setup();
-            updateTimeOrMoves();
         }
     }
 
@@ -91,7 +90,7 @@ public class GameActivity extends AppCompatActivity {
                 int moves = Integer.valueOf(sharedPreferences.getString("movesAmount", "15"));
                 game = new MovesGame(gameEndEvent, moves);
 
-                objectiveTextView.setText("Moves Remaining");
+                objectiveTextView.setText(R.string.time_remaining);
 
                 updateRemainingMovesText();
 
@@ -208,7 +207,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void updateTimeOrMoves(){
-        TextView textView1 = (TextView) findViewById(R.id.objectiveValue);
+        TextView textView1 = (TextView) this.findViewById(R.id.objectiveValue);
         if(game instanceof MovesGame){
             textView1.setText(((MovesGame)game).getRemainingMoves());
         }
@@ -393,6 +392,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void onNewGameClick(View view) {
+        createGameObject();
+        hideButtons();
         setup();
     }
 
@@ -415,5 +416,12 @@ public class GameActivity extends AppCompatActivity {
         //String strMoves = (String)textView.getText();
         //int moves = (strMoves.equals("")) ? 0 : Integer.parseInt(strMoves);
         //outState.putInt("moves", moves);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        //updateTimeOrMoves();
     }
 }
