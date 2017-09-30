@@ -3,6 +3,7 @@ package com.shepherdjerred.dots;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -29,10 +30,9 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         if(savedInstanceState == null) {
-            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
             createGameObject();
             hideButtons();
             setup();
@@ -47,6 +47,7 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }, savedInstanceState.getInt("moves"));
                 ((MovesGame) game).loadFromGameBundle(b);
+                updateRemainingMovesText();
 
             }
             else{
@@ -58,6 +59,7 @@ public class GameActivity extends AppCompatActivity {
                 },savedInstanceState.getInt("moves"));
                 ((TimedGame) game).loadFromGameBundle(b);
             }
+            createGameObject();
             setup();
         }
     }
@@ -188,6 +190,8 @@ public class GameActivity extends AppCompatActivity {
 
     private void selectDot(Dot dot) {
         game.addDotToPath(dot);
+        final MediaPlayer mp = MediaPlayer.create(this, R.raw.note_e);
+        mp.start();
         drawBoard();
     }
 
@@ -206,14 +210,10 @@ public class GameActivity extends AppCompatActivity {
         textView.setText(String.valueOf(game.getScore()));
     }
 
-    private void updateTimeOrMoves(){
-        TextView textView1 = (TextView) this.findViewById(R.id.objectiveValue);
-        if(game instanceof MovesGame){
-            textView1.setText(((MovesGame)game).getRemainingMoves());
-        }
-        else if(game instanceof TimedGame){
-            textView1.setText(((TimedGame)game).getGameDurationInSeconds());
-        }
+    private void updateTime(){
+        TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
+        TimedGame timedGame = (TimedGame) game;
+        objectiveValueTextView.setText(String.valueOf(timedGame.getGameDurationInSeconds()));
     }
 
     private void checkGameStatus() {
@@ -421,7 +421,5 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-
-        //updateTimeOrMoves();
     }
 }
