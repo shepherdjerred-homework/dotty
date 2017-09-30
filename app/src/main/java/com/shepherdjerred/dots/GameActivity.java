@@ -33,6 +33,8 @@ public class GameActivity extends AppCompatActivity {
         if(savedInstanceState == null) {
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+            createGameObject();
+            hideButtons();
             setup();
         }
         else{
@@ -45,7 +47,7 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }, savedInstanceState.getInt("moves"));
                 ((MovesGame) game).loadFromGameBundle(b);
-                ((TextView)findViewById(R.id.timeValue)).setText(savedInstanceState.getInt("moves"));
+
             }
             else{
                 game = new TimedGame(new GameEndEvent() {
@@ -55,14 +57,13 @@ public class GameActivity extends AppCompatActivity {
                     }
                 },savedInstanceState.getInt("moves"));
                 ((TimedGame) game).loadFromGameBundle(b);
-                ((TextView)findViewById(R.id.timeValue)).setText(savedInstanceState.getInt("moves"));
             }
+            setup();
+            updateTimeOrMoves();
         }
     }
 
     private void setup() {
-        createGameObject();
-        hideButtons();
         addTagToImages();
         mapImagesToCoords();
         addTouchListenerToGridLayout();
@@ -204,6 +205,16 @@ public class GameActivity extends AppCompatActivity {
     private void updateGameScoreView() {
         TextView textView = (TextView) findViewById(R.id.scoreValue);
         textView.setText(String.valueOf(game.getScore()));
+    }
+
+    private void updateTimeOrMoves(){
+        TextView textView1 = (TextView) findViewById(R.id.objectiveValue);
+        if(game instanceof MovesGame){
+            textView1.setText(((MovesGame)game).getRemainingMoves());
+        }
+        else if(game instanceof TimedGame){
+            textView1.setText(((TimedGame)game).getGameDurationInSeconds());
+        }
     }
 
     private void checkGameStatus() {
@@ -400,9 +411,9 @@ public class GameActivity extends AppCompatActivity {
             b.putString("type", "timed");
         }
         outState.putBundle("game",b);
-        TextView textView = (TextView) findViewById(R.id.timeValue);
-        String strMoves = (String)textView.getText();
-        int moves = (strMoves.equals("")) ? 0 : Integer.parseInt(strMoves);
-        outState.putInt("moves", moves);
+        //TextView textView = (TextView) findViewById(R.id.timeValue);
+        //String strMoves = (String)textView.getText();
+        //int moves = (strMoves.equals("")) ? 0 : Integer.parseInt(strMoves);
+        //outState.putInt("moves", moves);
     }
 }

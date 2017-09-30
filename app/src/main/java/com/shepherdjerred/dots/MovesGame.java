@@ -43,18 +43,21 @@ public class MovesGame extends Game {
 
         bundle.putSerializable("status",gameStatus);
 
+        bundle.putInt("moves", remainingMoves);
+
         return bundle;
     }
 
     public void loadFromGameBundle(Bundle gameBundle){
         score = gameBundle.getInt("score");
         for(int i = 0; i < SIZE_OF_GRID; i++){
-            for(int j = 0; j < SIZE_OF_GRID; i++){
+            for(int j = 0; j < SIZE_OF_GRID; j++){
                 Bundle b = gameBundle.getBundle("dot" + i + j);
                 dotGrid[i][j].loadFromDotBundle(b);
             }
         }
         dotColors = gameBundle.getIntArray("colors");
         gameStatus = (GameStatus) gameBundle.getSerializable("status");
+        remainingMoves = gameBundle.getInt("moves");
     }
 }
