@@ -50,8 +50,6 @@ public class TimedGame extends Game {
 
         bundle.putSerializable("status",gameStatus);
 
-        bundle.putInt("time", gameDurationInSeconds);
-
         return bundle;
     }
 
@@ -65,6 +63,5 @@ public class TimedGame extends Game {
         }
         dotColors = gameBundle.getIntArray("colors");
         gameStatus = (GameStatus) gameBundle.getSerializable("status");
-        gameDurationInSeconds = gameBundle.getInt("time");
     }
 }

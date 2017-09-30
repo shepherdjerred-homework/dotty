@@ -49,14 +49,14 @@ public class GameActivity extends AppCompatActivity {
                 updateRemainingMovesText();
 
             } else {
+                int time = savedInstanceState.getInt("time");
                 mGame = new TimedGame(new GameEndEvent() {
                     @Override
                     public void run() {
                         gameEnd();
                     }
-                }, savedInstanceState.getInt("time"));
+                }, time);
                 ((TimedGame) mGame).loadFromGameBundle(b);
-                int time = savedInstanceState.getInt("time");
 
                 TextView objectiveTextView = (TextView) findViewById(R.id.objectiveText);
                 TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
