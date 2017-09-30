@@ -1,5 +1,8 @@
 package com.shepherdjerred.dots;
 
+import android.os.Bundle;
+
+import java.io.Serializable;
 import java.util.Random;
 
 public class Dot {
@@ -83,5 +86,22 @@ public class Dot {
                 ", coordinate=" + coordinate +
                 ", selected=" + selected +
                 '}';
+    }
+
+    public Bundle getDotBundle(){
+        Bundle bundle = new Bundle();
+
+        bundle.putInt("color", color);
+        bundle.putInt("coordX", coordinate.getX());
+        bundle.putInt("coordY", coordinate.getY());
+        bundle.putBoolean("selected", selected);
+
+        return bundle;
+    }
+
+    public void loadFromDotBundle(Bundle bundle){
+        color = bundle.getInt("color");
+        coordinate = new Coordinate(bundle.getInt("coordX"), bundle.getInt("coordY"));
+        selected = bundle.getBoolean("selected");
     }
 }

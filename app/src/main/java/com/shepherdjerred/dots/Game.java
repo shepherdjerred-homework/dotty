@@ -1,5 +1,7 @@
 package com.shepherdjerred.dots;
 
+import android.os.Bundle;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,14 +9,14 @@ import java.util.List;
 
 public abstract class Game {
     public static int NUMBER_OF_COLORS = 5;
-    private static int SIZE_OF_GRID = 6;
+    protected static int SIZE_OF_GRID = 6;
 
-    private int score;
-    private Dot[][] dotGrid;
-    private int dotColors[];
-    private List<Dot> selectedDotPath;
+    protected int score;
+    protected Dot[][] dotGrid;
+    protected int dotColors[];
+    protected List<Dot> selectedDotPath;
     protected GameStatus gameStatus;
-    private GameEndEvent gameEndEvent;
+    protected GameEndEvent gameEndEvent;
 
     public Game(GameEndEvent gameEndEvent) {
         score = 0;

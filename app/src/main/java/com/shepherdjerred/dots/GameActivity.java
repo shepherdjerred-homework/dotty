@@ -30,9 +30,34 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if(savedInstanceState == null) {
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        setup();
+            setup();
+        }
+        else{
+            Bundle b = savedInstanceState.getBundle("game");
+            if(b.get("type").equals("move")){
+                game = new MovesGame(new GameEndEvent() {
+                    @Override
+                    public void run() {
+                        gameEnd();
+                    }
+                }, savedInstanceState.getInt("moves"));
+                ((MovesGame) game).loadFromGameBundle(b);
+                ((TextView)findViewById(R.id.timeValue)).setText(savedInstanceState.getInt("moves"));
+            }
+            else{
+                game = new TimedGame(new GameEndEvent() {
+                    @Override
+                    public void run() {
+                        gameEnd();
+                    }
+                },savedInstanceState.getInt("moves"));
+                ((TimedGame) game).loadFromGameBundle(b);
+                ((TextView)findViewById(R.id.timeValue)).setText(savedInstanceState.getInt("moves"));
+            }
+        }
     }
 
     private void setup() {
@@ -221,8 +246,6 @@ public class GameActivity extends AppCompatActivity {
         findViewById(R.id.mainMenu).setVisibility(View.INVISIBLE);
     }
 
-    // TODO fix crash on x/y=0, probably has same issue with x/y=5
-    // Technically is fixed by checking for null, but we could find a more elegant solution
     private Coordinate getCoordinateFromTouch(MotionEvent motionEvent) {
         GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
 
@@ -362,4 +385,24 @@ public class GameActivity extends AppCompatActivity {
         setup();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+
+        //Save the game
+        Bundle b = null;
+        if(game instanceof MovesGame){
+            b = ((MovesGame) game).getGameBundle();
+            b.putString("type", "move");
+        }
+        else if(game instanceof TimedGame){
+            b = ((TimedGame) game).getGameBundle();
+            b.putString("type", "timed");
+        }
+        outState.putBundle("game",b);
+        TextView textView = (TextView) findViewById(R.id.timeValue);
+        String strMoves = (String)textView.getText();
+        int moves = (strMoves.equals("")) ? 0 : Integer.parseInt(strMoves);
+        outState.putInt("moves", moves);
+    }
 }
