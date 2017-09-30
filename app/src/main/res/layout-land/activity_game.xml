@@ -55,6 +55,30 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
+
+        <Button
+            android:id="@+id/newGame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onNewGameClick"
+            android:text="New Game"
+            android:visibility="invisible"
+            app:layout_constraintTop_toBottomOf="@id/objectiveValue"
+            app:layout_constraintBottom_toTopOf="@+id/mainMenu"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+        <Button
+            android:id="@+id/mainMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onMainMenuClick"
+            android:text="Main Menu"
+            android:visibility="invisible"
+            app:layout_constraintTop_toBottomOf="@+id/newGame"
+            app:layout_constraintBottom_toTopOf="@+id/textView6"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
     </android.support.constraint.ConstraintLayout>
 
     <GridLayout
