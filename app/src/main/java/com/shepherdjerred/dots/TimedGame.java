@@ -64,4 +64,8 @@ public class TimedGame extends Game {
         dotColors = gameBundle.getIntArray("colors");
         gameStatus = (GameStatus) gameBundle.getSerializable("status");
     }
+
+    public void newGameOnReload(){
+        startTimer();
+    }
 }

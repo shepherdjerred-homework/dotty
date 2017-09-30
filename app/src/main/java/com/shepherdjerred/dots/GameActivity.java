@@ -34,7 +34,6 @@ public class GameActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             createGameObject();
-            hideButtons();
             setup();
         } else {
             Bundle b = savedInstanceState.getBundle("mGame");
@@ -74,13 +73,14 @@ public class GameActivity extends AppCompatActivity {
                         ((TextView) findViewById(R.id.objectiveValue)).setText(R.string.noTimeLeft);
                     }
                 }.start();
-
+                ((TimedGame) mGame).newGameOnReload();
             }
             setup();
         }
     }
 
     private void setup() {
+        hideButtons();
         addTagToImages();
         mapImagesToCoords();
         addTouchListenerToGridLayout();
@@ -250,8 +250,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void updateRemainingMovesText() {
         TextView objectiveValueTextView = (TextView) findViewById(R.id.objectiveValue);
-        MovesGame movesGame = (MovesGame) mGame;
-        objectiveValueTextView.setText(String.valueOf(movesGame.getRemainingMoves()));
+        objectiveValueTextView.setText(String.valueOf(((MovesGame) mGame).getRemainingMoves()));
     }
 
     // TODO update high score
