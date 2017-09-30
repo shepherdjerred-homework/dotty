@@ -117,7 +117,7 @@ public class GameActivity extends AppCompatActivity {
                 }
                 mGame = new MovesGame(gameEndEvent, moves);
 
-                objectiveTextView.setText(R.string.time_remaining);
+                objectiveTextView.setText(R.string.moves_remaining);
 
                 updateRemainingMovesText();
 
