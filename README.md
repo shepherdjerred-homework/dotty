@@ -1,4 +1,4 @@
-# [Dots](https://github.com/ShepherdJerred/dots)
+# Dots
 An Android game about connecting dots
 
 Avaliable on the [Google Play Store](https://play.google.com/store/apps/details?id=com.shepherdjerred.dots)
